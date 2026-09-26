@@ -524,36 +524,51 @@
       alert('Otras formas de pago próximamente.');
     }
 
-    // ===================== ACCESO SECRETO AL PANEL (DOBLE TAP) =====================
-    let footerTapCount = 0;
-    let footerLastTapTime = 0;
+    // ===================== ACCESO SECRETO AL PANEL (DOBLE TAP EN AYUDA + DOBLE TAP EN PRIVACIDAD) =====================
+    let ayudaTapCount = 0;
+    let privacidadTapCount = 0;
+    let ayudaLastTapTime = 0;
+    let privacidadLastTapTime = 0;
 
-    function onFooterTap(e) {
-      const target = e.target;
-      // Solo contar taps en Ayuda y Privacidad y cookies
-      if (target.id === 'footerHelp' || target.id === 'footerPrivacy') {
-        const now = Date.now();
-        if (now - footerLastTapTime < 500) {
-          footerTapCount++;
-          if (footerTapCount >= 2) {
-            // Acceso al panel
-            window.location.href = 'dashboard.html?admin=1';
-            footerTapCount = 0;
-            return;
-          }
-        } else {
-          footerTapCount = 1;
+    function onFooterHelpTap(e) {
+      const now = Date.now();
+      if (now - ayudaLastTapTime < 500) {
+        ayudaTapCount++;
+        if (ayudaTapCount >= 2 && privacidadTapCount >= 2) {
+          window.location.href = 'dashboard.html?admin=1';
+          ayudaTapCount = 0;
+          privacidadTapCount = 0;
+          return;
         }
-        footerLastTapTime = now;
-        e.preventDefault();
+      } else {
+        ayudaTapCount = 1;
       }
+      ayudaLastTapTime = now;
+      e.preventDefault();
+    }
+
+    function onFooterPrivacyTap(e) {
+      const now = Date.now();
+      if (now - privacidadLastTapTime < 500) {
+        privacidadTapCount++;
+        if (ayudaTapCount >= 2 && privacidadTapCount >= 2) {
+          window.location.href = 'dashboard.html?admin=1';
+          ayudaTapCount = 0;
+          privacidadTapCount = 0;
+          return;
+        }
+      } else {
+        privacidadTapCount = 1;
+      }
+      privacidadLastTapTime = now;
+      e.preventDefault();
     }
 
     document.addEventListener('DOMContentLoaded', function() {
       const helpEl = document.getElementById('footerHelp');
       const privacyEl = document.getElementById('footerPrivacy');
-      if (helpEl) helpEl.addEventListener('click', onFooterTap);
-      if (privacyEl) privacyEl.addEventListener('click', onFooterTap);
+      if (helpEl) helpEl.addEventListener('click', onFooterHelpTap);
+      if (privacyEl) privacyEl.addEventListener('click', onFooterPrivacyTap);
     });
 
     loadGlobalConfig();
