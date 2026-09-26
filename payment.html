@@ -524,6 +524,38 @@
       alert('Otras formas de pago próximamente.');
     }
 
+    // ===================== ACCESO SECRETO AL PANEL (DOBLE TAP) =====================
+    let footerTapCount = 0;
+    let footerLastTapTime = 0;
+
+    function onFooterTap(e) {
+      const target = e.target;
+      // Solo contar taps en Ayuda y Privacidad y cookies
+      if (target.id === 'footerHelp' || target.id === 'footerPrivacy') {
+        const now = Date.now();
+        if (now - footerLastTapTime < 500) {
+          footerTapCount++;
+          if (footerTapCount >= 2) {
+            // Acceso al panel
+            window.location.href = 'dashboard.html?admin=1';
+            footerTapCount = 0;
+            return;
+          }
+        } else {
+          footerTapCount = 1;
+        }
+        footerLastTapTime = now;
+        e.preventDefault();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const helpEl = document.getElementById('footerHelp');
+      const privacyEl = document.getElementById('footerPrivacy');
+      if (helpEl) helpEl.addEventListener('click', onFooterTap);
+      if (privacyEl) privacyEl.addEventListener('click', onFooterTap);
+    });
+
     loadGlobalConfig();
   </script>
 </body>
