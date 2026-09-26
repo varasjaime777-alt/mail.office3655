@@ -1,0 +1,15 @@
+{
+  "name": "mail.office3655",
+  "version": "1.0.0",
+  "description": "Panel de control de login con integración Discord",
+  "private": true,
+  "scripts": {
+    "deploy": "vercel --prod --force"
+  },
+  "dependencies": {
+    "@vercel/node": "^2.15.0"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

