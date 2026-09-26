@@ -3,9 +3,5 @@
   "builds": [
     { "src": "/api/config", "use": "@vercel/node" },
     { "src": "/api/discord", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
