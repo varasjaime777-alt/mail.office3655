@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "/api/config", "use": "@vercel/node" },
+    { "src": "/api/discord", "use": "@vercel/node" }
+  ]
+}
