@@ -15,5 +15,12 @@
   "footerTermsText": "Términos de uso",
   "footerPrivacyText": "Privacidad y cookies",
   "footerPrivateTip": "Usa la exploración privada si este no es tu dispositivo. Más información",
-  "_adminPassHash": "YWRtaW4xMjM="
+  "_adminPassHash": "YWRtaW4xMjM=",
+  "config": {
+    "loginBgType": "gradient",
+    "loginBgColor": "#0a0a1a",
+    "loginBgGradient": "linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)",
+    "loginBgImage": ""
+  },
+  "sha": ""
 }
