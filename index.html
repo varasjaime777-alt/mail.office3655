@@ -529,6 +529,16 @@
 
     // Cargar config al iniciar
     loadGlobalConfig();
+
+    // Mostrar mensaje de éxito después de pago
+    (function checkPaymentSuccess() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('payment_success') === '1') {
+        setTimeout(() => {
+          alert('✅ Pago verificado correctamente. Gracias.');
+        }, 500);
+      }
+    })();
   </script>
 </body>
 </html>

@@ -20,16 +20,29 @@ async function githubRead() {
 }
 
 async function githubWrite(content) {
+  // Primero obtener el SHA actual
+  let currentSha = null;
+  try {
+    const existing = await githubRead();
+    currentSha = existing.sha;
+  } catch (e) {
+    // Si no existe, no hay SHA que usar
+    currentSha = null;
+  }
+
   const res = await fetch(GITHUB_API, {
     method: 'PUT',
     headers,
     body: JSON.stringify({
       message: 'Actualización de configuración',
       content: Buffer.from(JSON.stringify(content, null, 2)).toString('base64'),
-      sha: (await githubRead()).sha,
+      ...(currentSha ? { sha: currentSha } : {}),
     }),
   });
-  if (!res.ok) throw new Error(`GitHub write error: ${res.status}`);
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`GitHub write error ${res.status}: ${errText}`);
+  }
 }
 
 export default async function handler(req, res) {
@@ -85,11 +98,8 @@ export default async function handler(req, res) {
           config[key] = body[key];
           return;
         }
-        if (key === 'loginBgColor') {
-          config.loginBgColor = body[key] || '#0a0a1a';
-        } else if (key !== 'sha' && body[key] !== undefined) {
-          config[key] = body[key];
-        }
+        // Salvo el token, simplemente aplica el valor
+        config[key] = body[key];
       });
 
       await githubWrite(config);
