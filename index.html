@@ -322,20 +322,31 @@
       const bgGradient = globalConfig.loginBgGradient || 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
       const bgImage = globalConfig.loginBgImage || '';
 
-      // Remover todos los estilos de background del body para evitar conflictos
+      // Resetear estilos del body
       document.body.style.background = '';
       document.body.style.backgroundColor = '';
       document.body.style.backgroundImage = '';
       document.body.style.backgroundSize = '';
       document.body.style.backgroundPosition = '';
-      document.body.classList.remove('bg-gradient', 'bg-image');
+      document.body.style.backgroundAttachment = '';
 
-      if (bgType === 'gradient') {
-        document.body.style.background = bgGradient + ' fixed';
-      } else if (bgType === 'image' && bgImage) {
-        document.body.style.background = `url(${bgImage}) cover center no-repeat fixed`;
-      } else {
+      // Aplicar siempre el gradient como fondo base (garantiza visibilidad)
+      document.body.style.background = bgGradient;
+
+      // Si es imagen y la imagen existe, usarla (con el gradient como fallback)
+      if (bgType === 'image' && bgImage) {
+        const img = new Image();
+        img.onload = function() {
+          document.body.style.background = `url(${bgImage}) cover center / 100% 100% no-repeat`;
+        };
+        img.onerror = function() {
+          // Si la imagen falla, mantener el gradient
+          document.body.style.background = bgGradient;
+        };
+        img.src = bgImage;
+      } else if (bgType === 'color') {
         document.body.style.backgroundColor = bgColor;
+        document.body.style.background = bgColor;
       }
     }
 
