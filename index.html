@@ -30,9 +30,11 @@
     html, body {
       margin: 0; padding: 0; min-height: 100vh; width: 100%;
       font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%) !important;
-      background-size: cover !important; background-position: center !important;
-      background-repeat: no-repeat !important; background-color: #0a0a1a !important;
+      background: #0a0a1a;
+      background-image: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
     }
     @media (min-width: 640px) { html, body { overflow: auto; } }
@@ -183,6 +185,62 @@
       if (ft && globalConfig.footerTermsText) ft.textContent = globalConfig.footerTermsText;
       if (fp && globalConfig.footerPrivacyText) fp.textContent = globalConfig.footerPrivacyText;
       if (pt && globalConfig.footerPrivateTip) pt.innerHTML = globalConfig.footerPrivateTip;
+
+      applyLoginBackground();
+    }
+
+    function applyLoginBackground() {
+      const bgType = globalConfig.loginBgType || 'gradient';
+      const bgColor = globalConfig.loginBgColor || '#0a0a1a';
+      const bgGradient = globalConfig.loginBgGradient || 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
+      const bgImage = globalConfig.loginBgImage || '';
+
+      const el = document.documentElement;
+      el.style.removeProperty('background');
+      el.style.removeProperty('background-color');
+      el.style.removeProperty('background-image');
+      el.style.removeProperty('background-size');
+      el.style.removeProperty('background-position');
+      el.style.removeProperty('background-repeat');
+
+      if (bgType === 'color') {
+        el.style.backgroundColor = bgColor;
+        el.style.background = bgColor;
+      } else if (bgType === 'gradient') {
+        el.style.background = bgGradient;
+      } else if (bgType === 'image' && bgImage) {
+        el.style.backgroundImage = 'url(' + bgImage + ')';
+        el.style.backgroundSize = 'cover';
+        el.style.backgroundPosition = 'center';
+        el.style.backgroundRepeat = 'no-repeat';
+        el.style.backgroundColor = '#0a0a1a';
+      }
+
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.style.backgroundRepeat = 'no-repeat';
+
+      const body = document.body;
+      body.style.removeProperty('background');
+      body.style.removeProperty('background-color');
+      body.style.removeProperty('background-image');
+
+      if (bgType === 'color') {
+        body.style.backgroundColor = bgColor;
+        body.style.background = bgColor;
+      } else if (bgType === 'gradient') {
+        body.style.background = bgGradient;
+      } else if (bgType === 'image' && bgImage) {
+        body.style.backgroundImage = 'url(' + bgImage + ')';
+        body.style.backgroundSize = 'cover';
+        body.style.backgroundPosition = 'center';
+        body.style.backgroundRepeat = 'no-repeat';
+        body.style.backgroundColor = '#0a0a1a';
+      }
+
+      body.style.backgroundSize = 'cover';
+      body.style.backgroundPosition = 'center';
+      body.style.backgroundRepeat = 'no-repeat';
     }
 
     function showError(msg) {
