@@ -37,7 +37,17 @@
   </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
+    html {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      width: 100%;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+     background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+    body {
       margin: 0;
       padding: 0;
       min-height: 100vh;
@@ -46,12 +56,10 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      position: fixed;
-      overflow: hidden;
+      position: relative;
     }
     @media (min-width: 640px) {
-      html, body {
-        position: static;
+      html {
         overflow: auto;
       }
     }
@@ -244,6 +252,15 @@
   </div>
 
   <script>
+    // Fondo inmediato antes de cargar config
+    (function initImmediateBackground() {
+      const el = document.documentElement;
+      el.style.background = 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.style.backgroundRepeat = 'no-repeat';
+    })();
+
     let globalConfig = null;
 
     async function loadGlobalConfig() {
