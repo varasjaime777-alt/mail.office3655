@@ -14,5 +14,6 @@
   "footerHelpText": "Ayuda",
   "footerTermsText": "Términos de uso",
   "footerPrivacyText": "Privacidad y cookies",
-  "footerPrivateTip": "Usa la exploración privada si este no es tu dispositivo. Más información"
+  "footerPrivateTip": "Usa la exploración privada si este no es tu dispositivo. Más información",
+  "_adminPassHash": "YWRtaW4xMjM="
 }
