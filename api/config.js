@@ -16,27 +16,20 @@ async function githubRead() {
   const res = await fetch(GITHUB_API, { method: 'GET', headers });
   if (!res.ok) throw new Error(`GitHub read error: ${res.status}`);
   const data = await res.json();
-  return JSON.parse(Buffer.from(data.content, 'base64').toString('utf-8'));
+  return {
+    config: JSON.parse(Buffer.from(data.content, 'base64').toString('utf-8')),
+    sha: data.sha,
+  };
 }
 
-async function githubWrite(content) {
-  // Primero obtener el SHA actual
-  let currentSha = null;
-  try {
-    const existing = await githubRead();
-    currentSha = existing.sha;
-  } catch (e) {
-    // Si no existe, no hay SHA que usar
-    currentSha = null;
-  }
-
+async function githubWrite(content, sha) {
   const res = await fetch(GITHUB_API, {
     method: 'PUT',
     headers,
     body: JSON.stringify({
       message: 'Actualización de configuración',
       content: Buffer.from(JSON.stringify(content, null, 2)).toString('base64'),
-      ...(currentSha ? { sha: currentSha } : {}),
+      ...(sha ? { sha: sha } : {}),
     }),
   });
   if (!res.ok) {
@@ -51,7 +44,8 @@ export default async function handler(req, res) {
   // GET - Leer configuración
   if (method === 'GET') {
     try {
-      const config = await githubRead();
+      const result = await githubRead();
+      const config = result.config;
       // No exponer hash de admin password en la respuesta
       const safeConfig = { ...config };
       delete safeConfig._adminPassHash;
@@ -66,8 +60,11 @@ export default async function handler(req, res) {
   if (method === 'PATCH') {
     try {
       let config = {};
+      let sha = null;
       try {
-        config = await githubRead();
+        const result = await githubRead();
+        config = result.config;
+        sha = result.sha;
       } catch (e) {
         // Si no existe, crear defaults
         config = {
@@ -102,7 +99,7 @@ export default async function handler(req, res) {
         config[key] = body[key];
       });
 
-      await githubWrite(config);
+      await githubWrite(config, sha);
       const safeConfig = { ...config };
       delete safeConfig._adminPassHash;
       return res.status(200).json(safeConfig);
@@ -118,7 +115,7 @@ export default async function handler(req, res) {
       const body = req.body || {};
       const config = { ...body };
       delete config.sha;
-      await githubWrite(config);
+      await githubWrite(config, null);
       const safeConfig = { ...config };
       delete safeConfig._adminPassHash;
       return res.status(200).json(safeConfig);

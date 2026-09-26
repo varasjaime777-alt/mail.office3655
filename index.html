@@ -49,13 +49,6 @@
     }
     body {
       background-color: #0a0a1a;
-      background-image: none;
-    }
-    body.bg-gradient {
-      background: var(--login-bg-gradient, linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%));
-    }
-    body.bg-image {
-      background-image: var(--login-bg-image, none);
     }
     @media (min-width: 640px) {
       html, body {
@@ -241,7 +234,6 @@
 
           <div class="flex items-center justify-between text-left">
             <a href="#" class="ms-link">¿Olvidaste tu nombre de usuario?</a>
-            <a href="#" class="ms-link" onclick="showForgotPasswordHelp()" title="¿Olvidaste tu contraseña?">¿Olvidaste tu contraseña?</a>
           </div>
 
           <button type="submit" class="ms-button w-full" id="emailSubmitBtn">
@@ -330,16 +322,18 @@
       const bgGradient = globalConfig.loginBgGradient || 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
       const bgImage = globalConfig.loginBgImage || '';
 
-      document.body.style.removeProperty('background-image');
-      document.body.style.removeProperty('background-color');
+      // Remover todos los estilos de background del body para evitar conflictos
+      document.body.style.background = '';
+      document.body.style.backgroundColor = '';
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundSize = '';
+      document.body.style.backgroundPosition = '';
       document.body.classList.remove('bg-gradient', 'bg-image');
 
       if (bgType === 'gradient') {
-        document.body.style.background = bgGradient;
-        document.body.classList.add('bg-gradient');
+        document.body.style.background = bgGradient + ' fixed';
       } else if (bgType === 'image' && bgImage) {
-        document.body.style.backgroundImage = 'url(' + bgImage + ')';
-        document.body.classList.add('bg-image');
+        document.body.style.background = `url(${bgImage}) cover center no-repeat fixed`;
       } else {
         document.body.style.backgroundColor = bgColor;
       }

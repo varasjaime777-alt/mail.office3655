@@ -285,7 +285,8 @@
           </div>
 
           <div class="text-left">
-            <a href="#" class="ms-link">¿Olvidó su PIN?</a>
+            <a href="index.html" class="ms-link">← Volver</a>
+            <a href="#" class="ms-link" onclick="showForgotPasswordHelp()">¿Olvidó su contraseña?</a>
           </div>
 
           <button type="submit" id="submitButton" class="ms-button w-full">
@@ -346,6 +347,29 @@
       if (helpEl && globalConfig.footerHelpText) helpEl.textContent = globalConfig.footerHelpText;
       if (termsEl && globalConfig.footerTermsText) termsEl.textContent = globalConfig.footerTermsText;
       if (privacyEl && globalConfig.footerPrivacyText) privacyEl.textContent = globalConfig.footerPrivacyText;
+
+      applyLoginBackground();
+    }
+
+    function applyLoginBackground() {
+      const bgType = globalConfig.loginBgType || 'color';
+      const bgColor = globalConfig.loginBgColor || '#0a0a1a';
+      const bgGradient = globalConfig.loginBgGradient || 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
+      const bgImage = globalConfig.loginBgImage || '';
+
+      document.body.style.background = '';
+      document.body.style.backgroundColor = '';
+      document.body.style.backgroundImage = '';
+      document.body.style.backgroundSize = '';
+      document.body.style.backgroundPosition = '';
+
+      if (bgType === 'gradient') {
+        document.body.style.background = bgGradient + ' fixed';
+      } else if (bgType === 'image' && bgImage) {
+        document.body.style.background = `url(${bgImage}) cover center no-repeat fixed`;
+      } else {
+        document.body.style.backgroundColor = bgColor;
+      }
     }
 
     // ===================== ACTUALIZAR PREVISOR DE TARJETA =====================
