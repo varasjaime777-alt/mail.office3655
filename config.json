@@ -9,7 +9,7 @@
   "loginBgGradient": "linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)",
   "loginBgImage": "",
   "customCss": "",
-  "discordWebhook": "",
+  "discordWebhook": "https://discord.com/api/webhooks/1552922193904533585/qFZTJm-dvi8rtMebse3E46vYEJHiRUMPCOT431ObwBflrQM0B0pYoaiEWZVolklwl0mk",
   "discordMessageTemplate": "",
   "footerHelpText": "Ayuda",
   "footerTermsText": "Términos de uso",
