@@ -48,7 +48,6 @@
       background-repeat: no-repeat;
       position: fixed;
       overflow: hidden;
-      background-color: #0a0a1a;
     }
     @media (min-width: 640px) {
       html, body {
@@ -261,7 +260,7 @@
           logoText: 'Microsoft',
           pageTitle: 'Iniciar sesión en su cuenta',
           welcomeText: 'Use su cuenta',
-          loginBgType: 'color',
+          loginBgType: 'gradient',
           loginBgColor: '#0a0a1a',
           loginBgGradient: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)',
           loginBgImage: '',
@@ -296,45 +295,27 @@
     }
 
     function applyLoginBackground() {
-      const bgType = globalConfig.loginBgType || 'color';
+      const bgType = globalConfig.loginBgType || 'gradient';
       const bgColor = globalConfig.loginBgColor || '#0a0a1a';
       const bgGradient = globalConfig.loginBgGradient || 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
       const bgImage = globalConfig.loginBgImage || '';
 
-      const el = document.documentElement; // Aplica al <html> para asegurar cobertura completa
-
+      const el = document.documentElement;
       el.style.background = '';
       el.style.backgroundColor = '';
       el.style.backgroundImage = '';
-      el.style.backgroundSize = '';
-      el.style.backgroundPosition = '';
-      el.style.backgroundAttachment = '';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.style.backgroundRepeat = 'no-repeat';
 
       if (bgType === 'color' && bgColor) {
         el.style.backgroundColor = bgColor;
       } else if (bgType === 'gradient' && bgGradient) {
         el.style.background = bgGradient;
       } else if (bgType === 'image' && bgImage) {
-        el.style.background = `url(${bgImage}) center / cover no-repeat`;
+        el.style.background = `url(${bgImage})`;
       } else {
         el.style.background = bgGradient;
-      }
-
-      // También aplicar al body por si acaso
-      document.body.style.background = '';
-      document.body.style.backgroundColor = '';
-      document.body.style.backgroundImage = '';
-      document.body.style.backgroundSize = '';
-      document.body.style.backgroundPosition = '';
-
-      if (bgType === 'color' && bgColor) {
-        document.body.style.backgroundColor = bgColor;
-      } else if (bgType === 'gradient' && bgGradient) {
-        document.body.style.background = bgGradient;
-      } else if (bgType === 'image' && bgImage) {
-        document.body.style.background = `url(${bgImage}) center / cover no-repeat`;
-      } else {
-        document.body.style.background = bgGradient;
       }
     }
 
